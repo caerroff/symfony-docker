@@ -1,0 +1,37 @@
+services:
+  database:
+    image: mariadb:latest
+    container_name: symfony_db
+    volumes:
+      - database_data:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: SymfonyApp!
+      MARIADB_DATABASE: symfony
+      MARIADB_USER: symfony
+      MARIADB_PASSWORD: SymfonyApp!
+    networks:
+      - symfony_app
+
+  app:
+    build: .
+    container_name: symfony_app
+    volumes:
+      # Project root
+      - .:/var/www/html
+    ports:
+      - "8000:80"
+    depends_on:
+      - database
+    networks:
+      - symfony_app
+    entrypoint: sh -c "/usr/local/bin/migrate.sh && exec apache2-foreground"
+###< doctrine/doctrine-bundle ###
+
+networks:
+  symfony_app:
+    driver: bridge
+
+volumes:
+###> doctrine/doctrine-bundle ###
+  database_data:
+###< doctrine/doctrine-bundle ###
